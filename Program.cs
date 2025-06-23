@@ -194,3 +194,66 @@ namespace ConnectFour
             }
         }
     }
+  // AI logic for playing game 
+    public class AIPlayer : Player
+    {
+        private readonly Board board;
+        private readonly Random rnd = new Random();
+
+        public AIPlayer(char symbol, Board board) : base(symbol)
+            => this.board = board;
+
+        // Decide best move: win, block, or random
+        public override int GetMove()
+        {
+            // Try to win
+            for (int c = 1; c <= Board.Columns; c++)
+            {
+                var temp = board.GetGridCopy();
+                if (TrySimulatedDrop(temp, c, Symbol) && CheckStateWin(temp, Symbol))
+                    return c;
+            }
+
+            // Try to block opponent
+            char opponent = (Symbol == 'X') ? 'O' : 'X';
+            for (int c = 1; c <= Board.Columns; c++)
+            {
+                var temp = board.GetGridCopy();
+                if (TrySimulatedDrop(temp, c, opponent) && CheckStateWin(temp, opponent))
+                    return c;
+            }
+
+            // Pick random valid move
+            int colRnd;
+            do { colRnd = rnd.Next(1, Board.Columns + 1); }
+            while (!board.IsValidMove(colRnd));
+            return colRnd;
+        }
+
+        // Simulate dropping a disc for a move (used to evaluate future states)
+        private bool TrySimulatedDrop(char[,] gridTemp, int col, char sym)
+        {
+            if (col < 1 || col > Board.Columns) return false;
+            col--;
+            for (int r = Board.Rows - 1; r >= 0; r--)
+                if (gridTemp[r, col] == '.')
+                {
+                    gridTemp[r, col] = sym;
+                    return true;
+                }
+            return false;
+        }
+        // Check if a simulated board state results in a win
+        private bool CheckStateWin(char[,] grid, char sym)
+        {
+            for (int r = 0; r < Board.Rows; r++)
+                for (int c = 0; c < Board.Columns; c++)
+                    if ((c + 3 < Board.Columns && grid[r, c] == sym && grid[r, c + 1] == sym && grid[r, c + 2] == sym && grid[r, c + 3] == sym)
+                     || (r + 3 < Board.Rows && grid[r, c] == sym && grid[r + 1, c] == sym && grid[r + 2, c] == sym && grid[r + 3, c] == sym)
+                     || (r + 3 < Board.Rows && c + 3 < Board.Columns && grid[r, c] == sym && grid[r + 1, c + 1] == sym && grid[r + 2, c + 2] == sym && grid[r + 3, c + 3] == sym)
+                     || (r - 3 >= 0 && c + 3 < Board.Columns && grid[r, c] == sym && grid[r - 1, c + 1] == sym && grid[r - 2, c + 2] == sym && grid[r - 3, c + 3] == sym))
+                        return true;
+            return false;
+        }
+    }
+}
