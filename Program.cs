@@ -148,4 +148,49 @@ namespace ConnectFour
                         return true;
             return false;
         }
+        // Check if selected column is not full
+        public bool IsFull()
+        {
+            for (int c = 0; c < Columns; c++)
+                if (grid[0, c] == Empty) return false;
+            return true;
+        }
 
+        // Returns a copy of the board (used for AI simulations)
+        public char[,] GetGridCopy()
+        {
+            return (char[,])grid.Clone();
+        }
+
+        // Check if a move is valid (column is not full)
+        public bool IsValidMove(int col)
+        {
+            if (col < 1 || col > Columns) return false;
+            return grid[0, col - 1] == Empty;
+        }
+    }
+
+    // Base class for all players (human or AI)
+    public abstract class Player
+    {
+        public char Symbol { get; }
+        protected Player(char symbol) { Symbol = symbol; }
+        public abstract int GetMove();
+    }
+
+    // Handles player input from console
+    public class HumanPlayer : Player
+    {
+        public HumanPlayer(char symbol) : base(symbol) { }
+        public override int GetMove()
+        {
+            int col;
+            while (true)
+            {
+                Console.Write("Column (1–7): ");
+                if (int.TryParse(Console.ReadLine(), out col) && col >= 1 && col <= 7)
+                    return col;
+                Console.WriteLine("Invalid input. Please enter a number between 1 and 7.");
+            }
+        }
+    }
