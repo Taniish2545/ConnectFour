@@ -88,3 +88,64 @@ namespace ConnectFour
             }
         }
     }
+// Represents the game board and its logic
+    public class Board
+    {
+        private readonly char[,] grid;
+        public const int Rows = 6, Columns = 7;
+        private const char Empty = '.';
+
+        public Board()
+        {
+            grid = new char[Rows, Columns];
+            Reset();
+        }
+
+        // Reset the board to initial state
+        public void Reset()
+        {
+            for (int r = 0; r < Rows; r++)
+                for (int c = 0; c < Columns; c++)
+                    grid[r, c] = Empty;
+        }
+
+        // Print the board to console
+        public void Display()
+        {
+            Console.Clear();
+            Console.WriteLine("1 2 3 4 5 6 7");
+            for (int r = 0; r < Rows; r++)
+            {
+                for (int c = 0; c < Columns; c++)
+                    Console.Write(grid[r, c] + " ");
+                Console.WriteLine();
+            }
+        }
+
+        // Drop disc into column, if valid
+        public bool DropDisc(int col, char symbol)
+        {
+            if (col < 1 || col > Columns) return false;
+            col--;
+            for (int r = Rows - 1; r >= 0; r--)
+                if (grid[r, col] == Empty)
+                {
+                    grid[r, col] = symbol;
+                    return true;
+                }
+            return false;
+        }
+
+        // Check if the given player has a winning line
+        public bool CheckWin(char symbol)
+        {
+            for (int r = 0; r < Rows; r++)
+                for (int c = 0; c < Columns; c++)
+                    if ((c + 3 < Columns && grid[r, c] == symbol && grid[r, c + 1] == symbol && grid[r, c + 2] == symbol && grid[r, c + 3] == symbol)
+                     || (r + 3 < Rows && grid[r, c] == symbol && grid[r + 1, c] == symbol && grid[r + 2, c] == symbol && grid[r + 3, c] == symbol)
+                     || (r + 3 < Rows && c + 3 < Columns && grid[r, c] == symbol && grid[r + 1, c + 1] == symbol && grid[r + 2, c + 2] == symbol && grid[r + 3, c + 3] == symbol)
+                     || (r - 3 >= 0 && c + 3 < Columns && grid[r, c] == symbol && grid[r - 1, c + 1] == symbol && grid[r - 2, c + 2] == symbol && grid[r - 3, c + 3] == symbol))
+                        return true;
+            return false;
+        }
+
